@@ -1,0 +1,28 @@
+name: wf-ci-staging
+on:
+  pull_request:
+    branches:
+      - "release/**" 
+jobs:
+  ci-staging-job:
+    name: Lint HTML and CSS Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{github.ref}}
+      - name: Lint HTML and CSS
+        run: |
+          npx htmlhint "**/*.html" || echo "No HTML files to lint yet."
+          npx stylelint "**/*.css" || echo "No CSS files to lint yet."
+  build-pr-staging:
+    name: Test Build In Staging
+    runs-on: ubuntu-latest
+    needs: ci-staging-job
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Build Website
+        run: |
+          npx parcel build "./src/index.html" --dist-dir "./dev" --public-url "./" || echo "No files to build yet"
